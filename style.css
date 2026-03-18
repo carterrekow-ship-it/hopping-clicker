@@ -1,0 +1,56 @@
+body {
+    background: #1a001f;
+    color: white;
+    font-family: Arial;
+    margin: 0;
+    text-align: center;
+}
+
+/* LAYOUT */
+.gameRow {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 60px;
+    margin-top: 30px;
+}
+
+/* SIDES */
+.side {
+    width: 200px;
+}
+
+/* FORCE STACKING */
+#clickUpgrades,
+#autoUpgrades {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* CENTER */
+.middle {
+    text-align: center;
+}
+
+/* IMAGE */
+#skull {
+    width: 200px;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+/* CLICK ANIMATION */
+.bounce {
+    transform: translateY(-40px);
+}
+
+/* BUTTONS */
+button {
+    width: 100%;
+    padding: 8px;
+    background: purple;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
