@@ -7,6 +7,7 @@ let multiplier = 1;
 const skull = document.getElementById("skull");
 const scoreDisplay = document.getElementById("score");
 const clickSound = document.getElementById("clickSound");
+const rebirthButton = document.getElementById("rebirthButton");
 
 // LOAD SAVE
 function loadGame() {
@@ -31,8 +32,9 @@ function saveGame() {
     }));
 }
 
-// FORMAT NUMBERS
+// FORMAT
 function format(num) {
+    if (num >= 1e9) return (num / 1e9).toFixed(1) + "B";
     if (num >= 1e6) return (num / 1e6).toFixed(1) + "M";
     if (num >= 1e3) return (num / 1e3).toFixed(1) + "K";
     return Math.floor(num);
@@ -41,7 +43,10 @@ function format(num) {
 // UPDATE UI
 function updateUI() {
     scoreDisplay.innerText =
-        `Score: ${format(score)} | Click: ${format(perClick)} | /sec: ${format(perSecond)} | x${multiplier}`;
+        `Score: ${format(score)} | Click: ${format(perClick)} | /sec: ${format(perSecond)} | Rebirths: ${rebirths} | x${multiplier}`;
+
+    const rebirthCost = 1000000;
+    rebirthButton.innerText = `Rebirth (${format(rebirthCost)})`;
 }
 
 // FLOATING TEXT
@@ -49,30 +54,30 @@ function createFloatingText(x, y, text) {
     const el = document.createElement("div");
     el.className = "floating";
     el.innerText = text;
-
     el.style.left = x + "px";
     el.style.top = y + "px";
-
     document.body.appendChild(el);
-
     setTimeout(() => el.remove(), 800);
 }
 
-// CLICK
+// CLICK SKULL
 skull.addEventListener("click", (e) => {
     score += perClick * multiplier;
 
     skull.classList.add("bounce");
-    setTimeout(() => skull.classList.remove("bounce"), 100);
+    setTimeout(() => {
+        skull.classList.remove("bounce");
+    }, 100);
 
-    createFloatingText(e.clientX, e.clientY, "+" + format(perClick));
+    createFloatingText(e.clientX, e.clientY, "+" + format(perClick * multiplier));
 
     if (clickSound) {
         clickSound.currentTime = 0;
-        clickSound.play();
+        clickSound.play().catch(() => {});
     }
 
     updateUI();
+    saveGame();
 });
 
 // AUTO INCOME
@@ -84,18 +89,25 @@ setInterval(() => {
 
 // REBIRTH
 function rebirth() {
-    if (score >= 1000000) {
+    const rebirthCost = 1000000;
+
+    if (score >= rebirthCost) {
         score = 0;
         perClick = 1;
         perSecond = 0;
-
         rebirths += 1;
         multiplier += 1;
 
-        alert("Rebirthed! Multiplier: x" + multiplier);
         updateUI();
+        saveGame();
+
+        alert("Rebirth complete! Multiplier is now x" + multiplier);
+    } else {
+        alert("You need 1,000,000 score to rebirth.");
     }
 }
+
+rebirthButton.addEventListener("click", rebirth);
 
 // UPGRADES
 const clickUpgrades = [
@@ -129,17 +141,20 @@ function createButtons() {
     const clickDiv = document.getElementById("clickUpgrades");
     const autoDiv = document.getElementById("autoUpgrades");
 
+    clickDiv.innerHTML = "";
+    autoDiv.innerHTML = "";
+
     clickUpgrades.forEach((upg, i) => {
         let btn = document.createElement("button");
         btn.innerText = `${upg.name} - ${format(upg.cost)}`;
-        btn.onclick = () => buyClick(i, btn);
+        btn.addEventListener("click", () => buyClick(i, btn));
         clickDiv.appendChild(btn);
     });
 
     autoUpgrades.forEach((upg, i) => {
         let btn = document.createElement("button");
         btn.innerText = `${upg.name} - ${format(upg.cost)}`;
-        btn.onclick = () => buyAuto(i, btn);
+        btn.addEventListener("click", () => buyAuto(i, btn));
         autoDiv.appendChild(btn);
     });
 }
@@ -154,6 +169,7 @@ function buyClick(i, btn) {
         upg.cost = Math.floor(upg.cost * 1.8);
         btn.innerText = `${upg.name} - ${format(upg.cost)}`;
         updateUI();
+        saveGame();
     }
 }
 
@@ -167,6 +183,7 @@ function buyAuto(i, btn) {
         upg.cost = Math.floor(upg.cost * 1.8);
         btn.innerText = `${upg.name} - ${format(upg.cost)}`;
         updateUI();
+        saveGame();
     }
 }
 
