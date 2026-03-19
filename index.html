@@ -7,23 +7,21 @@
 <body>
 
 <h1>Hopping Clicker</h1>
-<h2 id="score">Score: 0 | Click: 1 | /sec: 0</h2>
+<h2 id="score">Score: 0</h2>
+
+<button onclick="rebirth()">Rebirth (1M)</button>
 
 <div class="gameRow">
 
-    <!-- LEFT -->
     <div class="side">
         <h3>Click Upgrades</h3>
         <div id="clickUpgrades"></div>
     </div>
 
-    <!-- CENTER -->
     <div class="middle">
-        <!-- MAKE SURE skull.png IS NEXT TO index.html -->
         <img id="skull" src="skull.png">
     </div>
 
-    <!-- RIGHT -->
     <div class="side">
         <h3>Auto Upgrades</h3>
         <div id="autoUpgrades"></div>
@@ -31,7 +29,9 @@
 
 </div>
 
+<audio id="clickSound" src="click.mp3"></audio>
+
 <script src="script.js"></script>
 
 </body>
-</html> 
+</html>
