@@ -1,3 +1,5 @@
+document.addEventListener("DOMContentLoaded", () => {
+
 let score = 0;
 let perClick = 1;
 let perSecond = 0;
@@ -9,7 +11,7 @@ const scoreDisplay = document.getElementById("score");
 const clickSound = document.getElementById("clickSound");
 const rebirthButton = document.getElementById("rebirthButton");
 
-// LOAD SAVE
+// LOAD
 function loadGame() {
     let save = JSON.parse(localStorage.getItem("save"));
     if (save) {
@@ -40,13 +42,14 @@ function format(num) {
     return Math.floor(num);
 }
 
-// UPDATE UI
+// UI
 function updateUI() {
     scoreDisplay.innerText =
-        `Score: ${format(score)} | Click: ${format(perClick)} | /sec: ${format(perSecond)} | Rebirths: ${rebirths} | x${multiplier}`;
+        `Score: ${format(score)} | Click: ${format(perClick)} | /sec: ${format(perSecond)} | x${multiplier}`;
 
-    const rebirthCost = 1000000;
-    rebirthButton.innerText = `Rebirth (${format(rebirthCost)})`;
+    if (rebirthButton) {
+        rebirthButton.innerText = "Rebirth (1M)";
+    }
 }
 
 // FLOATING TEXT
@@ -60,27 +63,27 @@ function createFloatingText(x, y, text) {
     setTimeout(() => el.remove(), 800);
 }
 
-// CLICK SKULL
-skull.addEventListener("click", (e) => {
-    score += perClick * multiplier;
+// CLICK
+if (skull) {
+    skull.addEventListener("click", (e) => {
+        score += perClick * multiplier;
 
-    skull.classList.add("bounce");
-    setTimeout(() => {
-        skull.classList.remove("bounce");
-    }, 100);
+        skull.classList.add("bounce");
+        setTimeout(() => skull.classList.remove("bounce"), 100);
 
-    createFloatingText(e.clientX, e.clientY, "+" + format(perClick * multiplier));
+        createFloatingText(e.clientX, e.clientY, "+" + format(perClick * multiplier));
 
-    if (clickSound) {
-        clickSound.currentTime = 0;
-        clickSound.play().catch(() => {});
-    }
+        if (clickSound) {
+            clickSound.currentTime = 0;
+            clickSound.play().catch(() => {});
+        }
 
-    updateUI();
-    saveGame();
-});
+        updateUI();
+        saveGame();
+    });
+}
 
-// AUTO INCOME
+// AUTO
 setInterval(() => {
     score += perSecond;
     updateUI();
@@ -89,25 +92,24 @@ setInterval(() => {
 
 // REBIRTH
 function rebirth() {
-    const rebirthCost = 1000000;
-
-    if (score >= rebirthCost) {
+    if (score >= 1000000) {
         score = 0;
         perClick = 1;
         perSecond = 0;
-        rebirths += 1;
         multiplier += 1;
+        rebirths += 1;
 
+        alert("Rebirthed! x" + multiplier);
         updateUI();
         saveGame();
-
-        alert("Rebirth complete! Multiplier is now x" + multiplier);
     } else {
-        alert("You need 1,000,000 score to rebirth.");
+        alert("Need 1M score");
     }
 }
 
-rebirthButton.addEventListener("click", rebirth);
+if (rebirthButton) {
+    rebirthButton.addEventListener("click", rebirth);
+}
 
 // UPGRADES
 const clickUpgrades = [
@@ -141,28 +143,26 @@ function createButtons() {
     const clickDiv = document.getElementById("clickUpgrades");
     const autoDiv = document.getElementById("autoUpgrades");
 
-    clickDiv.innerHTML = "";
-    autoDiv.innerHTML = "";
+    if (!clickDiv || !autoDiv) return;
 
     clickUpgrades.forEach((upg, i) => {
         let btn = document.createElement("button");
         btn.innerText = `${upg.name} - ${format(upg.cost)}`;
-        btn.addEventListener("click", () => buyClick(i, btn));
+        btn.onclick = () => buyClick(i, btn);
         clickDiv.appendChild(btn);
     });
 
     autoUpgrades.forEach((upg, i) => {
         let btn = document.createElement("button");
         btn.innerText = `${upg.name} - ${format(upg.cost)}`;
-        btn.addEventListener("click", () => buyAuto(i, btn));
+        btn.onclick = () => buyAuto(i, btn);
         autoDiv.appendChild(btn);
     });
 }
 
-// BUY CLICK
+// BUY
 function buyClick(i, btn) {
     let upg = clickUpgrades[i];
-
     if (score >= upg.cost) {
         score -= upg.cost;
         perClick += upg.value;
@@ -173,10 +173,8 @@ function buyClick(i, btn) {
     }
 }
 
-// BUY AUTO
 function buyAuto(i, btn) {
     let upg = autoUpgrades[i];
-
     if (score >= upg.cost) {
         score -= upg.cost;
         perSecond += upg.value;
@@ -191,3 +189,5 @@ function buyAuto(i, btn) {
 loadGame();
 createButtons();
 updateUI();
+
+});

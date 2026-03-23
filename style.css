@@ -43,7 +43,6 @@ button {
     cursor: pointer;
 }
 
-/* floating text */
 .floating {
     position: absolute;
     color: white;
